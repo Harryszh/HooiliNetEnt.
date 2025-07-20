@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import api from "../api/api"
 
 const name = ref('')
 const password = ref('')
@@ -14,19 +15,15 @@ async function login() {
     })
 
     // 2. Login
-    await axios.post('http://localhost:8000/login', {
+    await api.post('/login', {
       name: name.value,
       password: password.value
-    }, {
-      withCredentials: true
     })
 
     message.value = '✅ Login erfolgreich'
 
     // 3. User abfragen (optional)
-    const res = await axios.get('http://localhost:8000/api/user', {
-      withCredentials: true
-    })
+    const res = await api.get('/user')
 
     console.log('Eingeloggt als:', res.data)
 

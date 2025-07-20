@@ -54,6 +54,7 @@
 
 <script>
 import axios from 'axios';
+import api from '@/api/api';
 
 export default {
   name: 'RegistriPag',
@@ -86,8 +87,8 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost:8000/api/register', {
-          username: this.formData.username,
+        const response = await api.post('/register', {
+          name: this.formData.username,
           password: this.formData.password
         });
 
