@@ -1,0 +1,74 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: net2_backend
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      -  DB_CONNECTION=mysql
+      - DB_HOST=HooliNetdb           # hier 'db' (Service-Name), nicht 'net1_db'
+      - DB_DATABASE=HooliNetdbz
+      - DB_USERNAME=harryz
+      - DB_PASSWORD=1234Pp
+    ports:
+      - "8000:8000"
+    depends_on:
+      - HooliNetdb                   # hier 'db', nicht 'net1_db'
+    restart: always
+    networks:
+      - HooliNet
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: net2_frontend
+    working_dir: /app
+    command: ["npm", "run", "dev", "--", "--host"]
+    volumes: 
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - HooliNet
+
+  HooliNetdb:
+    image: mysql:8.0
+    container_name: net2_db_mysql       # container_name ist ok
+    environment:
+      MYSQL_DATABASE: HooliNetdbz
+      MYSQL_USER: harryz
+      MYSQL_PASSWORD: 1234Pp
+      MYSQL_ROOT_PASSWORD: 1234Pp
+      TZ: Europe/Berlin
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdataz:/var/lib/mysql
+    networks:
+      - HooliNet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: Hoolinet_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: HooliNetdb              # hier auch 'db'
+      MYSQL_ROOT_PASSWORD: 1234Pp
+    depends_on:
+      - HooliNetdb                          # hier 'db'
+    networks:
+      - HooliNet
+
+volumes:
+  dbdataz:
+  frontend_node_modules:
+
+networks:
+  HooliNet:
+    driver: bridge

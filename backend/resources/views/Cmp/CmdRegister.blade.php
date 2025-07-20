@@ -1,0 +1,1 @@
+backend/resources/views/Cmp/CmdRegister.blade.php
