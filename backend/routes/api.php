@@ -2,17 +2,23 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 Route::post('/login', function (Request $request) {
-    // Simulierter Login-Handler
-    $email = $request->input('email');
-    $password = $request->input('password');
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-    // Hier könntest du echte Authentifizierung machen
-    if ($email === 'test@example.com' && $password === 'secret') {
-        return response()->json(['token' => 'demo-token'], 200);
+    $user = User::where('username', $request->username)->first();
+
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Ungültige Zugangsdaten'], 401);
     }
 
-    return response()->json(['error' => 'Unauthorized'], 401);
+    return response()->json([
+        'token' => 'demo-token',
+        'username' => $user->username,
+    ]);
 });
-
