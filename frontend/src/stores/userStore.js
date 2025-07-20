@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import api from "../api/api";
+import axios from "axios";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -18,7 +19,7 @@ export const useUserStore = defineStore("user", {
     },
     async login(credentials) {
       try {
-        await api.get("/sanctum/csrf-cookie"); // für Sanctum
+        await axios.get("http://localhost:8000/sanctum/csrf-cookie", { withCredentials: true });
         await api.post("/login", credentials);
         await this.fetchUser();
       } catch (err) {
