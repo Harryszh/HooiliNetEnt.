@@ -1,44 +1,69 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
-import api from "../api/api"
+import api from '@/api/api'
 
-const name = ref('')
-const password = ref('')
-const message = ref('')
+const login = ref({
+  username: '',  // 👈 statt email
+  password: ''
+})
 
-async function login() {
+const error = ref(null)
+
+const submitLogin = async () => {
+  error.value = null
+
   try {
-    // 1. CSRF-Cookie holen (wichtig!)
-    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
-      withCredentials: true
-    })
+    const response = await api.post('/login', login.value)
 
-    // 2. Login
-    await api.post('/login', {
-      name: name.value,
-      password: password.value
-    })
+    localStorage.setItem('token', response.data.token)
 
-    message.value = '✅ Login erfolgreich'
-
-    // 3. User abfragen (optional)
-    const res = await api.get('/user')
-
-    console.log('Eingeloggt als:', res.data)
-
-  } catch (e) {
-    console.error(e)
-    message.value = '❌ Login fehlgeschlagen'
+    window.location.href = '/dashboard'
+  } catch (err) {
+    if (err.response?.status === 401) {
+      error.value = 'Benutzername oder Passwort falsch'
+    } else {
+      error.value = 'Fehler beim Login'
+    }
+    console.error(err)
   }
 }
 </script>
 
 <template>
-  <div>
-    <input v-model="name" placeholder="Name" />
-    <input v-model="password" type="password" placeholder="Passwort" />
-    <button @click="login">Login</button>
-    <p>{{ message }}</p>
+  <div class="flex justify-center items-center h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
+      <h2 class="text-xl font-bold text-center mb-4">Login</h2>
+
+      <form @submit.prevent="submitLogin" class="space-y-4">
+        <div>
+          <label class="block mb-1 text-sm font-medium">Benutzername</label>
+          <input
+            v-model="login.username"
+            type="text"
+            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Passwort</label>
+          <input
+            v-model="login.password"
+            type="password"
+            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Einloggen
+        </button>
+
+        <p v-if="error" class="text-red-500 text-center text-sm mt-2">{{ error }}</p>
+      </form>
+    </div>
   </div>
 </template>

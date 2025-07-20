@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -21,9 +23,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Falsche Zugangsdaten'], 401);
         }
 
+        $token = $user->createToken('api_token')->plainTextToken;
+
         return response()->json([
-            'message' => 'Login erfolgreich',
-            'user' => $user
+            'user' => $user,
+            'token' => $token,
         ]);
     }
 }

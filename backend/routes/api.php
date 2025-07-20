@@ -1,14 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
-Route::post('/register', [RegisteredUserController::class, 'register']);
+Route::post('/login', function (Request $request) {
+    // Simulierter Login-Handler
+    $email = $request->input('email');
+    $password = $request->input('password');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    // Hier könntest du echte Authentifizierung machen
+    if ($email === 'test@example.com' && $password === 'secret') {
+        return response()->json(['token' => 'demo-token'], 200);
+    }
+
+    return response()->json(['error' => 'Unauthorized'], 401);
 });
+
